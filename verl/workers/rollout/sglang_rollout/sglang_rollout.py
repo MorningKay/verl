@@ -961,6 +961,8 @@ class SGLangRollout(BaseRollout):
                 should_terminate_sequence, content, reward, metrics = await interaction.generate_response(
                     _req.request_id, messages, **_req.interaction_kwargs
                 )
+                if metrics:
+                    _req.update_metrics(metrics, interaction_name)
                 user_turn_rewards.append(reward)
                 if should_terminate_sequence:
                     finish_reason_type = FinishReasonTypeEnum.STOP
@@ -1090,6 +1092,7 @@ class SGLangRollout(BaseRollout):
         reward_scores = []
         multi_modal_inputs = []
         request_ids = []
+        metrics_list = []
 
         for req in sorted_output_req_list:
             assert req.state == AsyncRolloutRequestStateEnum.COMPLETED, f"Request {req.request_id} is not completed"
@@ -1130,6 +1133,7 @@ class SGLangRollout(BaseRollout):
             reward_scores.append(req.reward_scores)
             multi_modal_inputs.append(req.multi_modal_inputs)
             request_ids.append(req.request_id)
+            metrics_list.append(req.metrics)
 
         prompt_ids = pad_sequence(
             prompt_ids,
@@ -1221,6 +1225,7 @@ class SGLangRollout(BaseRollout):
             "messages": np.array(messages),
             "reward_scores": np.array(reward_scores),
             "request_id": np.array(request_ids),
+            "interaction_metrics": np.array(metrics_list),
         }
 
         is_multimodal = isinstance(self.processing_class, ProcessorMixin) and (
