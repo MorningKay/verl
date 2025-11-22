@@ -84,7 +84,7 @@ class NaiveRewardManager:
                 data_source=data_source,
                 solution_str=response_str,
                 user_turn_rewards=data_item.non_tensor_batch["reward_scores"].get("user_turn_rewards"),
-                interaction_metrics=data_item.non_tensor_batch["interaction_metrics"].get("empathetic_agent"),
+                interaction_metrics=data_item.non_tensor_batch["interaction_metrics"].get("empathetic_agent")[-1],
                 ground_truth=ground_truth,
                 extra_info=extra_info,
             )
